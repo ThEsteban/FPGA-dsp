@@ -41,7 +41,8 @@ logic [3:0] tap_index;
 logic busy; 
 logic signed [31:0] accumulator; // 12 + 16  + log2(16) = 32 bits for safety.  
 
-logic signed [27:0] current_product;
+logic signed [31:0] current_product;
+logic signed [15:0] current_coeff; 
 logic signed [31:0] mac_sum;
 logic signed [31:0] rounded_result;
 logic signed [15:0] saturated_result;
@@ -83,28 +84,29 @@ always_ff @( posedge clk ) begin : delay_update
     end
 end 
 
-always_comb begin 
-    current_product = samples[tap_index] * coeff(tap_index); 
-    mac_sum = accumulator + {{4{current_product[27]}}, current_product}; 
-                if (mac_sum >= 0) begin
-                     rounded_result = (mac_sum + 32'sd16384) >>> 15;
-                end
-                else begin
-                    rounded_result = (mac_sum + 32'sd16383) >>> 15;
-                end
+always_comb begin
+    current_coeff   = coeff(tap_index);
 
-                //saturate if necessary
-                if(rounded_result > 32767) begin
-                    saturated_result = 16'sd32767; 
-                end
-                else if(rounded_result < -32768) begin
-                    saturated_result = -16'sd32768; 
-                end
-                else begin
-                    saturated_result = $signed(rounded_result); 
-                end
+    // Debug: force every sample to 1000.
+    // 32'sd1000 guarantees at least 32-bit signed multiplication.
+    current_product = $signed(samples[tap_index]) * $signed(current_coeff);
+
+    mac_sum = accumulator + current_product;
+
+    if (mac_sum >= 0) begin
+        rounded_result = (mac_sum + 32'sd16384) >>> 15;
+    end
+    else begin
+        rounded_result = (mac_sum + 32'sd16383) >>> 15;
+    end
+
+    if (rounded_result > 32767)
+        saturated_result = 16'sd32767;
+    else if (rounded_result < -32768)
+        saturated_result = -16'sd32768;
+    else
+        saturated_result = $signed(rounded_result);
 end
-
 
 
 /* parallel multipliers 
