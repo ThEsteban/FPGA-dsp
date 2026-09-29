@@ -53,9 +53,18 @@ nextpnr-himbaechel
 - Programmed the Tang Nano 20K with `openFPGALoader`
 - Verified correct operation on physical hardware
 
-### Fixed-Point FIR Filter
 
-Implemented and validated a 16-tap low-pass FIR filter targeting vibration/acoustic sensor data sampled at 8 kHz.
+### Fixed-Point FIR filter
+
+- Implemented a 16-tap low-pass FIR in SystemVerilog using Q1.15 fixed-point coefficients
+- Generated Hamming-windowed coefficients in Python/Scipy for an 8 kHz sample rate
+- Verified impulse response, DC gain, passband/stopband behavior, and multi-tone filtering in simulation
+- Matched RTL frequency response against a Python reference model
+- Added signed rounding and saturation logic
+- Refactored from 16 parallel multipliers to a time-multiplexed single-MAC architecture
+- Reduced multiplier usage from 16 `MULT18X18` blocks to 1
+- Achieved 212.72 MHz post-place-and-route Fmax against a 27 MHz target
+- Began board-level integration on the Tang Nano 20K
 
 #### Architecture
 
