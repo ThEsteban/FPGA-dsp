@@ -4,11 +4,15 @@ IO_PORT "clk" IO_TYPE=LVCMOS33;
 IO_LOC "reset" 88; 
 IO_PORT "reset" IO_TYPE = LVCMOS33; 
 
-IO_LOC "led0" 15; 
-IO_PORT "led0" IO_TYPE= LVCMOS33; 
+IO_LOC "spi_sclk" 76;
+IO_PORT "spi_sclk" IO_TYPE=LVCMOS33;
 
-IO_LOC "led1" 16; 
-IO_PORT "led1" IO_TYPE = LVCMOS33; 
+IO_LOC "spi_mosi" 86;
+IO_PORT "spi_mosi" IO_TYPE=LVCMOS33;
 
-IO_LOC "led2" 17; 
-IO_PORT "led1" IO_TYPE = LVCMOS33; 
+IO_LOC "spi_cs_n" 72;
+IO_PORT "spi_cs_n" IO_TYPE=LVCMOS33;
+
+// UART: FPGA -> onboard BL616 -> USB -> PC
+IO_LOC "uart_tx_pin" 69;
+IO_PORT "uart_tx_pin" IO_TYPE=LVCMOS33;
