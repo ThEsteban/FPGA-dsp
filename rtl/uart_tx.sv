@@ -1,6 +1,6 @@
 module uart_tx #(
     parameter CLK_FREQ = 27_000_000,
-    parameter BAUD     = 115_200
+    parameter BAUD     = 230_400
 )(
     input  logic       clk,
     input  logic       reset,
