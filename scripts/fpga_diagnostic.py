@@ -40,6 +40,10 @@ def main():
     sync_window = bytearray()
     high_byte = None
 
+    pre_sync_total_bytes = 0
+    pre_sync_interval_bytes = 0
+    pre_sync_preview = bytearray()
+
     interval_total = 0
     interval_correct = 0
     interval_tagged = 0
@@ -80,6 +84,12 @@ def main():
 
                 for byte in chunk:
                     if not synchronized:
+                        pre_sync_total_bytes += 1
+                        pre_sync_interval_bytes += 1
+
+                        if len(pre_sync_preview) < 32:
+                            pre_sync_preview.append(byte)
+
                         sync_window.append(byte)
 
                         if len(sync_window) > len(SYNC_PATTERN):
@@ -126,7 +136,25 @@ def main():
 
                 if not synchronized:
                     if elapsed >= 1.0:
-                        print("Still waiting for byte alignment...")
+                        preview = " ".join(
+                            "{:02X}".format(byte)
+                            for byte in pre_sync_preview
+                        )
+
+                        if pre_sync_interval_bytes == 0:
+                            print("Still waiting: no UART bytes received")
+                        else:
+                            print(
+                                "Still waiting: raw_bytes={} (+{})  "
+                                "first_bytes={}".format(
+                                    pre_sync_total_bytes,
+                                    pre_sync_interval_bytes,
+                                    preview,
+                                )
+                            )
+
+                        pre_sync_interval_bytes = 0
+                        pre_sync_preview.clear()
                         report_start = now
 
                     continue

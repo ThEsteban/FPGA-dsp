@@ -70,7 +70,7 @@ spi_rx spi_reciever (
     .data_valid(spi_data_valid)
 ); 
 
-assign fifo_write = spi_data_valid ; //checking if there's just an issue with datavalid pulses 
+assign fifo_write = spi_data_valid; 
 assign fifo_read = (state == IDLE) && !fifo_empty; 
 
 sample_fifo adc_fifo (

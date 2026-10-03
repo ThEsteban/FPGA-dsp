@@ -1,3 +1,5 @@
+`default_nettype none
+
 module spi_rx (
     input  logic        clk,
     input  logic        reset,
@@ -15,17 +17,13 @@ module spi_rx (
     (* async_reg = "true" *) logic [1:0] mosi_sync;
 
     logic sck_previous;
-
     logic [15:0] shift_register;
-    logic [4:0]  bit_count;
+    logic [4:0] bit_count;
 
     logic sck_rising;
 
-    assign sck_rising =
-        !sck_previous &&
-        sck_sync[1];
+    assign sck_rising = !sck_previous && sck_sync[1];
 
-    // Synchronize all asynchronous SPI inputs.
     always_ff @(posedge clk) begin
         if (reset) begin
             sck_sync  <= 2'b00;
@@ -40,7 +38,7 @@ module spi_rx (
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            sck_previous  <= 1'b0;
+            sck_previous   <= 1'b0;
             shift_register <= 16'd0;
             bit_count      <= 5'd0;
             data_out       <= 16'd0;
@@ -49,8 +47,8 @@ module spi_rx (
             sck_previous <= sck_sync[1];
             data_valid   <= 1'b0;
 
-            // Keep the receiver continuously reset whenever CS is high.
-            // This has priority over all SCK processing.
+            // Keep the partial-word state reset for the entire time CS is
+            // inactive. This gives CS priority over SCK edge processing.
             if (cs_sync[1]) begin
                 shift_register <= 16'd0;
                 bit_count      <= 5'd0;
@@ -65,7 +63,6 @@ module spi_rx (
                         shift_register[14:0],
                         mosi_sync[1]
                     };
-
                     data_valid <= 1'b1;
                     bit_count  <= 5'd0;
                 end else begin
@@ -76,3 +73,5 @@ module spi_rx (
     end
 
 endmodule
+
+`default_nettype wire
